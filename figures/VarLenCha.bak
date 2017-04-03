@@ -1,0 +1,16 @@
+# set terminal png transparent nocrop enhanced size 450,320 font "arial,8" 
+set terminal postscript eps enhanced color font 'Helvetica,20'
+set output 'VarLenCha.eps'
+set key inside right top vertical Right noreverse noenhanced autotitle nobox
+set datafile missing '-'
+set style data linespoints
+#set xtics border in scale 1,0.5 nomirror rotate by -45  autojustify
+#set xtics  norangelimit
+#set xtics   ()
+set title "Performance by Read Length" 
+set xlabel "Length of Reads"
+set ylabel "Performance(GCUPS)"
+x = 0.0
+i = 22
+## Last datafile plotted: "immigration.dat"
+plot 'VarLenCha.dat' title "Performance"
