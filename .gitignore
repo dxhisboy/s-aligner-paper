@@ -1,3 +1,5 @@
-*.pdf
-*.dvi
-*.ps
+/s-aligner.pdf
+/s-aligner.aux
+/s-aligner.bbl
+/s-aligner.blg
+/s-aligner.log
