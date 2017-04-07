@@ -15,11 +15,11 @@ minutes. Moreover, when executed on a single node it can outperform
 the popular all-mapper RazerS3 executed on eight Xeon E7-8860 CPUs
 while achieving highly competitive mapping accuracy.
 
-The design of S-Aligner teaches a number of lessons about properly
+From S-Aligner we learn a number of lessons about properly
 designing parallelization and communication patterns in order to
 achieve both high performance and scalability on the new Sunway Taihu
 Light supercomputer. First, both multithreading and SIMD vectorization
-need to be employed to fully exploit the computational resources of
+must be employed in order to fully exploit the computational resources of
 the SW26010 processor. Second, within an SP the fast LDM must be used
 via DMA intrinsics in order to guarantee efficient intra-CG
 communication. Third, a scalable inter-CG communication scheme must be
@@ -27,7 +27,7 @@ implemented in a way that efficiently hides the interconnection
 network bottleneck. Fourth, asynchronous file-loading and data-sharing
 strategies need to be implemented in order to effectively hide the
 latency of the network file system. The techniques presented in this
-paper could also be adapted to map similar applications exhibiting a
+paper can also be adapted to map similar applications exhibiting a
 pipeline of hashing and verification, such as large-scale approximate
 near duplicate object detection \cite{efficient} or de novo genome
 assembly \cite{swap} onto the heterogeneous many-core cluster

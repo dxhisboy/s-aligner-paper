@@ -1,8 +1,8 @@
 \begin{abstract}
 
   The availability and amount of sequenced genomes have been rapidly
-  growing in recent years due to the adoption of next-generation
-  sequencing (NGS) technologies that allow for high-throughput
+  growing in recent years because of the adoption of next-generation
+  sequencing (NGS) technologies that emable high-throughput
   short-read generation at highly competitive cost. Since this trend
   is expected to continue in the foreseeable future, the design and
   implementation of efficient and scalable NGS bioinformatics
@@ -14,12 +14,12 @@
   techniques to overcome both the memory-bound and the compute-bound
   bottlenecks in the read mapping algorithm. In order to make full use
   of the compute power of Sunway Taihu Light, our design employs three
-  levels of parallelism: (1) inter-node parallelism using MPI based on
-  a task-grid pattern, (2) intra-node parallelism using
-  multi-threading and asynchronous data transfer to fully utilize all
+  levels of parallelism: (1) internode parallelism using MPI based on
+  a task-grid pattern, (2) intranode parallelism using
+  multithreading and asynchronous data transfer to fully utilize all
   260 cores of the SW26010 many-core processor, and (3) vectorization
   to exploit the available 256-bit SIMD vector registers.  Moreover,
-  we have employed asynchronous access patterns and data sharing
+  we have employed asynchronous access patterns and data-sharing
   strategies during file I/O to overcome bandwidth limitations of the
   network file system. Our performance evaluation demonstrates that
   S-Aligner scales almost linearly with approximately 95\% efficiency

@@ -2,7 +2,7 @@
 \label{Implementation}
 
 This section describes the implementation of both the inter-CG and
-intra-CG parallelism for the S-Aligner. Also discussed is our
+intra-CG parallelism for S-Aligner. Also discussed are our
 bit-level encoding strategy and the exploitation of local device
 memory.
 
@@ -17,10 +17,10 @@ memory.
 
 The highest level of parallelization employs a coarse-grained
 partitioning scheme over a block distribution of reads and reference
-genome using MPI. In our experiments we process up to 1.6 TB of read
+genomes using MPI. In our experiments we process up to 1.6 TB of read
 data using up to 13,312 SW26010 nodes executing more than 50,000
 dispatched processes. Thus, a na\"{\i}ve partitioning of the read file
-into 50,000 pieces of approximately 32 MB size is not a suitable
+into 50,000 pieces of approximately 32 MB is not a suitable
 solution because of the excessive data replication of the reference
 genome index. Instead, we employ a partitioning strategy based on a
 {\em task grid pattern} for the inter-CG parallelization by
@@ -30,7 +30,7 @@ by the reference block identifiers (rows) and read chunk identifiers
 (columns) as shown in Figure \ref{TaskGrid}(a). Thus, processes in the
 same row share a unique reference genome (index) block while processes
 within a column use the same read chunk. Each process executes several
-cells in one row in order to avoid replication of the relatively big
+cells in one row in order to avoid replicating the relatively big
 reference index.
 
 \begin{figure}[!htb]
@@ -42,14 +42,14 @@ reference index.
   \end{center}
 \end{figure}
 
-The read input file is partitioned into chunks of fixed size. This can
+The read input file is partitioned into chunks of fixed size. This partitioning can
 be easily achieved by splitting by lines. For the reference genome, we
 first concatenate the individual chromosomes to form one long
 string. We then divide it into blocks of suitable size according to
 the memory capacity of a CG ($\approx$300 million bps per block). Note
 that this partitioning scheme is disadvantageous when a chromosome is
 scattered over two blocks or a read is mapped to the junction point of
-two chromosomes. This issue can be resolved by padding `N's between
+two chromosomes. This issue can be resolved by padding N's between
 chromosomes. Moreover, when dividing a chromosome into two blocks, we
 store several base pairs in a neighborhood around the break point in
 both chunks. As a result, a read is always mapped correctly to a
@@ -58,7 +58,7 @@ contiguous region. Figure~\ref{RefDiv} depicts this approach.
 The computing nodes of Sunway Taihu Light are connected to a network
 file system via a 1 GBit/s interface, while the overall file system
 bandwidth is $\sim290$ GB/s for the whole cluster. In practice,
-efficient data distribution patterns have to be employed to reach
+efficient data distribution patterns must be employed in order to reach
 reasonable performance. The file system bandwidth is low compared with
 the bisection bandwidth of $\sim70$ TB/s among compute nodes. To
 address this issue, we employ a {\em group-and-broadcast} data reuse
@@ -78,12 +78,12 @@ perform their computation concurrently.
 
 \begin{figure}[!htb]
   \includegraphics[width=\linewidth]{figures/AsyncRead}
-  \caption{Asynchronous data loading strategy: (a) default case, and
+  \caption{Asynchronous data loading strategy: (a) default case and
     (b) case when there is no significantly shorter reference block.}
   \label{AsyncRead}
 \end{figure}
 
-Our reference genome partitioning strategy illustrated in
+Our reference genome-partitioning strategy illustrated in
 Figure~\ref{RefDiv} often generates one reference genome block that is
 significantly shorter than the others. This block is assigned to the
 first row of our task grid. Thus, processes in the first row take less
@@ -93,7 +93,7 @@ reduces the idle time of other processes waiting for read data.
 Figure \ref{AsyncRead}(a) illustrates this strategy.
 
 We further provide an optional asynchronous data-loading strategy in
-case that there is no significantly shorter reference block. In this
+case no significantly shorter reference block exists. In this
 case we add a row of processes that loads only reads. When other
 processes in the column are computing alignments, these processes
 exclusively load new read chunks. After loading and computation have
@@ -115,17 +115,17 @@ illustrates this strategy.
 
 The second level of parallelism exploits the threading capabilities of
 a CG. Our design within a single node is a comprehensive read mapper
-based on the described seed-and-extend approach using the three-stage
+based on the described seed-and-extend approach using a three-stage
 pipeline: filtration, verification, and alignment. The filtration step
-uses a look-up table of $q$-grams of the assigned reference genome
-block that can be loaded from a preprocessed index file or
-alternatively calculated on-the-fly by a radix sort-based hash table
+uses a lookup table of $q$-grams of the assigned reference genome
+block that can be loaded from a preprocessed index file or,
+alternatively, calculated on the fly by a radix sort-based hash table
 construction method. After the MP performs the lookup of each
 non-overlapping $q$-gram of a read, it stores the retrieved intervals
 in a SIMD-friendly manner allowing for efficient vectorization during
 the subsequent verification step on the SPs. Verification selects all
 intervals that comply with the restricted edit distance using Myers'
-bit-parallel algorithm. Afterwards, we employ a banded version of the
+bit-parallel algorithm. We then employ a banded version of the
 Smith-Waterman algorithm on the SPs to align the remaining intervals
 that have passed verification. Figure~\ref{FrmWk} shows the workflow
 of our intra-CG implementation.
@@ -137,7 +137,7 @@ of our intra-CG implementation.
 \end{figure}
 
 The intra-CG parallelization is realized by a task parallelization
-scheme implemented using spawn and join calls of the {\em athread}
+scheme implemented by using spawn and join calls of the {\em athread}
 library. The MP executes the filtration stage while the SPs process
 the verification step. Each read is divided into non-overlapping
 $q$-grams. The MP looks up those $q$-grams in the reference genome
@@ -145,7 +145,7 @@ index and returns a number of intervals. The MP copies them to a
 buffer that is transferred to the LDM of SPs for verification. We
 employ a dual buffer strategy by allocating two buffers for storing
 the intervals identified by the MP. When the MP has finished filling
-one buffer, it waits for the SP thread group to join, and then
+one buffer, it waits for the SP thread group to join and then
 dispatches an SP thread group to verify these intervals. Subsequently,
 the MP fills another buffer, while the SP thread group performs
 verification. These steps are repeated until all reads are processed
@@ -165,46 +165,46 @@ alignment stage.
 
 Figure~\ref{SPParallel} illustrates our framework for dividing the
 computation between the MP and SPs within a single CG. The number of
-seeds identified for a given read can vary while the verification time
+seeds identified for a given read can vary, whereas the verification time
 of a single seed is constant. Thus, a simple static assignment of seed
 intervals per read to SPs can cause workload imbalance.  To balance
 the workload, we introduce the parameter $slice\_num$, which restricts
 the maximum number of seed intervals to be verified for one read. If
-there are more than $slice\_num$ seed intervals to be verified for a
+more than $slice\_num$ seed intervals are to be verified for a
 read, we spawn verification threads with the first $slice\_num$
 intervals. The remaining intervals will be verified in a subsequent
 round of spawns. A value of $slice\_num$ that is too large can reduce
-the overhead of spawning SP thread groups, but it worsens workload
+the overhead of spawning SP thread groups, but it worsens the workload
 balance, and vice versa. Our default value of $slice\_num = 100$
 provides a good trade-off in practice.
 
 
 \subsection{SIMD Vectorization}
 
-Implementing Myers' bit-parallel algorithm using ShenWei's SIMD
+Implementing Myers' bit-parallel algorithm by using ShenWei's SIMD
 intrinsics requires a bit-level encoding of DNA sequences to
 efficiently evaluate the characteristic function $\chi(s_{i-1} =
 s'_{j-1})$ for all $i, j$.
 
 Different approaches have been used in existing aligners: BWA
-\cite{bwa} employs an {\em array of structures} (AoS) while RazerS3
-\cite{razers3} stores a DNA sequence in a profile using one-hot
-encoding. While the AoS approach is more space-efficient and
-cache-friendly, the usage of a profile with one-hot encoding supports
+\cite{bwa} employs an {\em array of structures} (AoS), whereas RazerS3
+\cite{razers3} stores a DNA sequence in a profile by using one-hot
+encoding. While the AoS approach is more space efficient and
+cache friendly, the usage of a profile with one-hot encoding supports
 bit-parallel computation in a more efficient way.  Because of the
 small size of the LDM and the requirement of bit parallelism, we
 employ an encoding strategy that combines an AoS with an SoA ({\em
   structure of arrays}) approach, which we call an AoSoA ({\em array
   of structures of arrays}). This mixed strategy builds two
 bit-vectors in an interleaved fashion. Thus, we can fetch the encoded
-sequence by one DMA-intrinsic and calculate $\chi(s_{i-1} = s'_{j-1})$
+sequence by one DNA-intrinsic and calculate $\chi(s_{i-1} = s'_{j-1})$
 in terms of two logical equality operations. Figure~\ref{MixPack}
 illustrates the encoding strategy.
 
 \begin{figure}[!htb]
   \includegraphics[width=0.9\linewidth]{figures/MixPack}
   \caption{Bit-level encoding strategies for DNA sequences. For
-    simplicity, we use a 4-bit word instead of 64-bit word for
+    simplicity, we use a 4-bit word instead of a 64-bit word for
     illustrating our combined AoSoA strategy (bottom).}
   \label{MixPack}
 \end{figure}
@@ -217,7 +217,7 @@ value we have not computed yet). Myers \cite{myers} has shown that
 this can be solved by using logical operations and an
 addition. ShenWei's SIMD instructions support 256-bit integer
 arithmetic, such as \texttt{simd\_uaddo\_take\_carry} (short for SIMD
-unsigned octa-word add, taking carry) which adds two 256-bit operands
+unsigned octa-word add, taking carry), which adds two 256-bit operands
 and returns a 256-bit unsigned integer. Thus, different from
 implementations of Myers' algorithm on other architectures (e.g.,
 \cite{chacon}), our implementation does not require additional
@@ -297,6 +297,6 @@ fetching is usually shorter than the time required for
 verification. Thus, in the common case the DMA reply word needs to be
 checked just once in order to pass the busy-wait loop. Our
 experimental results show that our asynchronous data transfer
-implementation can almost hide the DMA-fetching latency completely and
+implementation can hide the DMA-fetching latency almost completely and
 gains a performance improvement of a factor of 22 compared with an
 implementation based on \texttt{memcpy}.

@@ -3,16 +3,16 @@
 
 {\em Next-generation sequencing} (NGS) technologies have
 revolutionized the field of computational biology because of their
-massive throughput at highly competitive cost. Nowadays, NGS data is
-processed in almost every field of bioinformatics with important
+massive throughput at highly competitive cost. Today, NGS data is
+processed in almost every field of bioinformatics, with important
 applications including personalized cancer treatment and precision
 medicine.  Modern NGS instruments such as Illumina sequencers
-\cite{reviewngs} allow for the recording of billions of short DNA
+\cite{reviewngs} enable the recording of billions of short DNA
 fragments per day. The produced \emph{short reads} are usually only a
 few hundred base pairs (bps) in length compared with complete genomes
 of typical mammals covering billions of nucleotides. In order to
 further analyze the set of delocalized reads, they are typically
-mapped to a given reference genome by computing base-pair level
+mapped to a given reference genome by computing base-pair-level
 alignments to determine their original positions. This exhaustive
 probing of possible alignments is a compute-heavy task and thus
 justifies the need for massively parallel and efficient computation
@@ -26,9 +26,9 @@ demanding time complexity of the Smith-Waterman algorithm \cite{sw}
 that is proportional to the product of the sequences' lengths. Thus,
 methods based on a {\em seed-and-extend} approach are typically
 employed to dramatically reduce the number of alignment positions by
-considering only those regions in the reference genome which contain
+considering only those regions in the reference genome that contain
 an exact occurrence of a substring of a read. Among existing read
-mappers one can find two predominant operation modes: {\em any-best}
+mappers are two predominant operation modes: {\em any-best}
 and {\em all}. Bowtie2 \cite{bowtie2}, BWA \cite{bwa}, GEM \cite{gem},
 and CUSHAW \cite{cushaw} run in {\em any-best} mode, which determines
 only one or a few best alignments (also called {\em intervals}) of
@@ -37,9 +37,9 @@ each read to the reference genome. Other mappers such as RazerS3
 and mrFAST \cite{mrfast} operate in {\em all} mode, which reports all
 intervals satisfying a certain constraint, for example, compliance
 with a predefined edit distance threshold.  Because of their extensive
-nature all-mappers demand far more computational resources than their
-any-best counterparts. Nevertheless, when studying gene innovation or
-phenotypic variation the complete list of alignments is crucial for a
+nature, all-mappers demand far more computational resources than their
+any-best counterparts do. Nevertheless, when studying gene innovation or
+phenotypic variation, the complete list of alignments is crucial for a
 thorough analysis.
 
 Consequently, we pursue the design of an all-mapper in order to
@@ -66,14 +66,14 @@ we provide an efficient implementation of Myers' bit-parallel string
 matching algorithm that harnesses the full parallelization and
 vectorization potential of the SW26010 many-core processor. Our new
 implementation is three orders of magnitude faster than a na\"ive
-single-threaded Myers' version. Second, we exploit fast local device
-memory via DMA intrinsics for intra-CG communication, which results in
-a 22$\times$ speedup compared with the non-DMA variant. Third, a
-highly scalable inter-CG communication scheme is proposed. This
+single-threaded Myers version. Second, we exploit fast local device
+memory via direct memory access (DMA) intrinsics for intra-CG communication, which results in
+a 22$\times$ speedup compared with the non-DMA variant. Third, we propose a
+highly scalable inter-CG communication scheme. This
 results in a parallelization efficiency of over 95\% when using 53,248
 CGs. Fourth, we employ asynchronous file loading and data-sharing
 strategies to effectively hide the latency of the network file
-system. We further expect that the presented techniques can guide the
+system. We expect that the presented techniques can guide the
 design and implementation of similar types of applications on the
 neo-heterogeneous many-core cluster architecture of Sunway Taihu
 Light.
